@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
@@ -7,76 +7,95 @@ import ProductGrid from './components/ProductGrid';
 import ShoppingCart from './components/ShoppingCart';
 import ProductModal from './components/ProductModal';
 import Footer from './components/Footer';
-import { products, featuredProducts } from './data/mock';
+import { useProducts } from './hooks/useProducts';
+import { useCart } from './hooks/useCart';
+import { categoriesAPI } from './services/api';
 import { useToast } from './hooks/use-toast';
 import { Toaster } from './components/ui/toaster';
 
 function App() {
-  const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [categories, setCategories] = useState([]);
   const { toast } = useToast();
 
-  // Filter products based on selected category
-  const filteredProducts = selectedCategory
-    ? products.filter(product => 
-        selectedCategory === 'sale' 
-          ? product.isOnSale 
-          : product.category === selectedCategory
-      )
-    : featuredProducts;
+  // Load products based on selected category
+  const productFilters = selectedCategory 
+    ? (selectedCategory === 'sale' ? { sale: true } : { category: selectedCategory })
+    : { limit: 8 }; // Load featured products (first 8)
+    
+  const { products, loading: productsLoading, error: productsError } = useProducts(productFilters);
+  
+  // Cart management
+  const {
+    cartItems,
+    cartSummary,
+    loading: cartLoading,
+    error: cartError,
+    addToCart: addToCartAPI,
+    updateCartItem,
+    removeCartItem,
+    clearCart
+  } = useCart();
 
-  const addToCart = (product, selectedSize = null, selectedColor = null) => {
-    const cartItem = {
-      ...product,
-      selectedSize,
-      selectedColor,
-      quantity: 1,
-      cartId: `${product.id}-${selectedSize}-${selectedColor}-${Date.now()}`
-    };
-
-    setCartItems(prev => {
-      const existingIndex = prev.findIndex(item => 
-        item.id === product.id && 
-        item.selectedSize === selectedSize && 
-        item.selectedColor === selectedColor
-      );
-
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex].quantity += 1;
-        return updated;
-      } else {
-        return [...prev, cartItem];
+  // Load categories on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await categoriesAPI.getCategories();
+        if (response.success) {
+          setCategories(response.data.categories);
+        }
+      } catch (error) {
+        console.error('Failed to load categories:', error);
       }
-    });
+    };
+    
+    loadCategories();
+  }, []);
 
-    toast({
-      title: "Zum Warenkorb hinzugefügt",
-      description: `${product.name} wurde erfolgreich hinzugefügt.`,
-    });
-  };
-
-  const updateCartQuantity = (cartId, newQuantity) => {
-    if (newQuantity === 0) {
-      removeFromCart(cartId);
-      return;
+  const addToCart = async (product, selectedSize = null, selectedColor = null) => {
+    const size = selectedSize || (product.sizes.length > 0 ? product.sizes[0] : 'Einheitsgröße');
+    const color = selectedColor || (product.colors.length > 0 ? product.colors[0] : 'Standard');
+    
+    const success = await addToCartAPI(product.id, size, color, 1);
+    
+    if (success) {
+      toast({
+        title: "Zum Warenkorb hinzugefügt",
+        description: `${product.name} wurde erfolgreich hinzugefügt.`,
+      });
+    } else {
+      toast({
+        title: "Fehler",
+        description: "Artikel konnte nicht hinzugefügt werden.",
+        variant: "destructive"
+      });
     }
-
-    setCartItems(prev =>
-      prev.map(item =>
-        item.cartId === cartId ? { ...item, quantity: newQuantity } : item
-      )
-    );
   };
 
-  const removeFromCart = (cartId) => {
-    setCartItems(prev => prev.filter(item => item.cartId !== cartId));
-    toast({
-      title: "Artikel entfernt",
-      description: "Der Artikel wurde aus dem Warenkorb entfernt.",
-    });
+  const handleUpdateCartQuantity = async (itemId, newQuantity) => {
+    const success = await updateCartItem(itemId, newQuantity);
+    
+    if (!success) {
+      toast({
+        title: "Fehler",
+        description: "Artikel konnte nicht aktualisiert werden.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRemoveFromCart = async (itemId) => {
+    const success = await removeCartItem(itemId);
+    
+    if (success) {
+      toast({
+        title: "Artikel entfernt",
+        description: "Der Artikel wurde aus dem Warenkorb entfernt.",
+      });
+    }
   };
 
   const handleCategoryClick = (category) => {
