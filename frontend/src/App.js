@@ -131,19 +131,29 @@ function App() {
           <Hero onShopNowClick={handleShopNowClick} />
           
           <div id="products">
-            <ProductGrid
-              products={filteredProducts}
-              onAddToCart={(product) => addToCart(product)}
-              onProductClick={handleProductClick}
-              title={
-                selectedCategory === 'sale' ? 'Sale Artikel' :
-                selectedCategory === 'damen' ? 'Damenmode' :
-                selectedCategory === 'herren' ? 'Herrenmode' :
-                selectedCategory === 'accessoires' ? 'Accessoires' :
-                selectedCategory === 'schuhe' ? 'Schuhe' :
-                'Beliebte Produkte'
-              }
-            />
+            {productsLoading ? (
+              <div className="flex justify-center items-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+              </div>
+            ) : productsError ? (
+              <div className="text-center py-20">
+                <p className="text-red-600">Fehler beim Laden der Produkte: {productsError}</p>
+              </div>
+            ) : (
+              <ProductGrid
+                products={products}
+                onAddToCart={(product) => addToCart(product)}
+                onProductClick={handleProductClick}
+                title={
+                  selectedCategory === 'sale' ? 'Sale Artikel' :
+                  selectedCategory === 'damen' ? 'Damenmode' :
+                  selectedCategory === 'herren' ? 'Herrenmode' :
+                  selectedCategory === 'accessoires' ? 'Accessoires' :
+                  selectedCategory === 'schuhe' ? 'Schuhe' :
+                  'Beliebte Produkte'
+                }
+              />
+            )}
           </div>
         </main>
 
@@ -153,8 +163,8 @@ function App() {
           isOpen={isCartOpen}
           onClose={() => setIsCartOpen(false)}
           cartItems={cartItems}
-          onUpdateQuantity={updateCartQuantity}
-          onRemove={removeFromCart}
+          onUpdateQuantity={handleUpdateCartQuantity}
+          onRemove={handleRemoveFromCart}
           onCheckout={handleCheckout}
         />
 
