@@ -40,7 +40,9 @@ class StyleHubAPITester:
         """Make HTTP request with error handling"""
         url = f"{self.base_url}{endpoint}"
         try:
+            print(f"Making {method} request to: {url}")
             response = self.session.request(method, url, **kwargs)
+            print(f"Response status: {response.status_code}")
             return response
         except requests.exceptions.RequestException as e:
             print(f"Request failed: {e}")
