@@ -76,6 +76,7 @@ export const useProducts = (filters = {}) => {
       ];
       
       // Filter mock products based on current filters
+      const combinedFilters = { ...filters, ...newFilters };
       let filteredMockProducts = mockProducts;
       if (combinedFilters.category) {
         filteredMockProducts = mockProducts.filter(p => p.category === combinedFilters.category);
