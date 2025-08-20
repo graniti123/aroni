@@ -30,7 +30,7 @@ async def search_products(
             "$or": [
                 {"name": {"$regex": q, "$options": "i"}},
                 {"description": {"$regex": q, "$options": "i"}},
-                {"colors": {"$in": [{"$regex": q, "$options": "i"}]}},
+                {"colors": {"$elemMatch": {"$regex": q, "$options": "i"}}},
                 {"category": {"$regex": q, "$options": "i"}}
             ]
         }
