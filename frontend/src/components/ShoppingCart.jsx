@@ -10,19 +10,23 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
     <div className="flex items-center space-x-4 py-4">
       <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
         <img
-          src={item.image}
-          alt={item.name}
+          src={item.product?.image || item.image}
+          alt={item.product?.name || item.name}
           className="w-full h-full object-cover"
         />
       </div>
 
       <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-gray-900 truncate">{item.name}</h4>
+        <h4 className="font-medium text-gray-900 truncate">
+          {item.product?.name || item.name}
+        </h4>
         <p className="text-sm text-gray-500">
-          {item.selectedSize && `Größe: ${item.selectedSize}`}
-          {item.selectedColor && ` • ${item.selectedColor}`}
+          {item.selected_size && `Größe: ${item.selected_size}`}
+          {item.selected_color && ` • ${item.selected_color}`}
         </p>
-        <p className="font-semibold text-gray-900">€{item.price}</p>
+        <p className="font-semibold text-gray-900">
+          €{(item.product?.price || item.price)}
+        </p>
       </div>
 
       <div className="flex items-center space-x-2">
