@@ -39,6 +39,9 @@ class StyleHubAPITester:
     def make_request(self, method: str, endpoint: str, **kwargs) -> Optional[requests.Response]:
         """Make HTTP request with error handling"""
         url = f"{self.base_url}{endpoint}"
+        # Ensure trailing slash for POST requests to avoid 307 redirects
+        if method == "POST" and not endpoint.endswith('/'):
+            url += '/'
         try:
             print(f"Making {method} request to: {url}")
             response = self.session.request(method, url, **kwargs)
