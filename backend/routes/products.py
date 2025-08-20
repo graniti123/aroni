@@ -1,8 +1,12 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from datetime import datetime
-from ..models import Product, ProductCreate, APIResponse
-from ..database import products_collection
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from models import Product, ProductCreate, APIResponse
+from database import products_collection
 import logging
 
 logger = logging.getLogger(__name__)
