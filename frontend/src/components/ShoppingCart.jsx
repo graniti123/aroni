@@ -69,9 +69,15 @@ const ShoppingCart = ({
   onRemove, 
   onCheckout 
 }) => {
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((sum, item) => {
+    const price = item.product?.price || item.price || 0;
+    return sum + (price * item.quantity);
+  }, 0);
+  
   const shipping = subtotal > 50 ? 0 : 4.99;
   const total = subtotal + shipping;
+  
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
