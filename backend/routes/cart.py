@@ -1,7 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from ..models import CartItem, CartItemCreate, CartItemUpdate, APIResponse
-from ..database import cart_items_collection, products_collection
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from models import CartItem, CartItemCreate, CartItemUpdate, APIResponse
+from database import cart_items_collection, products_collection
 import logging
 
 logger = logging.getLogger(__name__)
