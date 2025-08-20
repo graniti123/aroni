@@ -86,7 +86,7 @@ const ShoppingCart = ({
           <SheetTitle className="flex items-center justify-between">
             Warenkorb
             <Badge variant="secondary">
-              {cartItems.reduce((sum, item) => sum + item.quantity, 0)} Artikel
+              {totalItems} Artikel
             </Badge>
           </SheetTitle>
         </SheetHeader>
