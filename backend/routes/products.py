@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
+from datetime import datetime
 from ..models import Product, ProductCreate, APIResponse
 from ..database import products_collection
 import logging
