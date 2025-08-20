@@ -1,6 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
-from .models import Product, Category
+from models import Product, Category
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
